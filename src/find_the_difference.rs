@@ -67,20 +67,20 @@ mod test {
     #[test]
     fn xor_version_base_test_1() {
         assert_eq!(
-            find_the_difference("abcd".to_string(), "abcde".to_string()),
+            find_the_difference_xor("abcd".to_string(), "abcde".to_string()),
             'e'
         );
     }
 
     #[test]
     fn xor_version_base_test_2() {
-        assert_eq!(find_the_difference(String::new(), "y".to_string()), 'y');
+        assert_eq!(find_the_difference_xor(String::new(), "y".to_string()), 'y');
     }
 
     #[test]
     fn xor_version_my_test_1() {
         assert_eq!(
-            find_the_difference(
+            find_the_difference_xor(
                 "abcdklqweruickjuie".to_string(),
                 "abcdklqweruickjuies".to_string()
             ),
@@ -90,13 +90,16 @@ mod test {
 
     #[test]
     fn xor_version_duplicate_char_case() {
-        assert_eq!(find_the_difference("a".to_string(), "aa".to_string()), 'a');
+        assert_eq!(
+            find_the_difference_xor("a".to_string(), "aa".to_string()),
+            'a'
+        );
     }
 
     #[test]
     fn xor_version_shuffled_with_duplicate_extra() {
         assert_eq!(
-            find_the_difference("aabbcc".to_string(), "bcabcab".to_string()),
+            find_the_difference_xor("aabbcc".to_string(), "bcabcab".to_string()),
             'b'
         );
     }
