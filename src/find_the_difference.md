@@ -12,7 +12,6 @@ Return the letter that was added to `t`.
 Input: s = "abcd", t = "abcde"
 Output: "e"
 Explanation: 'e' is the letter that was added.
-
 ```
 
 **Example 2:**
@@ -20,11 +19,10 @@ Explanation: 'e' is the letter that was added.
 ```txt
 Input: s = "", t = "y"
 Output: "y"
-
 ```
 
 **Constraints:**
 
-* `0 <= s.length <= 1000`
-* `t.length == s.length + 1`
-* `s` and `t` consist of lowercase English letters.
+- `0 <= s.length <= 1000`
+- `t.length == s.length + 1`
+- `s` and `t` consist of lowercase English letters.

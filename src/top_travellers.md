@@ -11,7 +11,6 @@ Table: `Users`
 +---------------+---------+
 id is the column with unique values for this table.
 name is the name of the user.
-
 ```
 
 Table: `Rides`
@@ -26,7 +25,6 @@ Table: `Rides`
 +---------------+---------+
 id is the column with unique values for this table.
 user_id is the id of the user who traveled the distance "distance".
-
 ```
 
 Write a solution to report the distance traveled by each user.
@@ -81,5 +79,4 @@ Explanation:
 Elvis and Lee traveled 450 miles, Elvis is the top traveler as his name is alphabetically smaller than Lee.
 Bob, Jonathan, Alex, and Alice have only one ride and we just order them by the total distances of the ride.
 Donald did not have any rides, the distance traveled by him is 0.
-
 ```
