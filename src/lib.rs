@@ -1,4 +1,5 @@
 pub mod find_closest_number_to_zero;
+pub mod find_indices_of_stable_mountains;
 pub mod find_the_difference;
 pub mod fix_playlist_window;
 pub mod maximum_number_of_words_you_can_type;
