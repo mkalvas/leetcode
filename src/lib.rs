@@ -7,4 +7,5 @@ pub mod number_of_perfect_pairs;
 pub mod perfect_number;
 pub mod split_array_into_maximum_number_of_subarrays;
 pub mod split_strings_by_separator;
+pub mod sum_of_floored_pairs;
 pub mod two_sum;
