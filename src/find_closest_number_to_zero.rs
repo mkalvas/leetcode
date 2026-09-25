@@ -4,7 +4,7 @@ use std::cmp::Reverse;
 
 pub fn find_closest_number(nums: Vec<i32>) -> i32 {
     nums.into_iter()
-        .max_by_key(|&number| (number.unsigned_abs(), Reverse(number)))
+        .max_by_key(|&number| (Reverse(number.unsigned_abs()), number))
         .expect("nums is guaranteed to be non-empty")
 }
 

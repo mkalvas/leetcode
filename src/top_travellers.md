@@ -2,7 +2,7 @@
 
 Table: `Users`
 
-```
+```txt
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
@@ -15,7 +15,7 @@ name is the name of the user.
 
 Table: `Rides`
 
-```
+```txt
 +---------------+---------+
 | Column Name   | Type    |
 +---------------+---------+
@@ -35,7 +35,7 @@ The result format is in the following example.
 
 **Example 1:**
 
-```
+```txt
 Input:
 Users table:
 +------+-----------+
@@ -79,4 +79,20 @@ Explanation:
 Elvis and Lee traveled 450 miles, Elvis is the top traveler as his name is alphabetically smaller than Lee.
 Bob, Jonathan, Alex, and Alice have only one ride and we just order them by the total distances of the ride.
 Donald did not have any rides, the distance traveled by him is 0.
+```
+
+## Solution
+
+It was an accident that I got a SQL problem today with my random problem selector. I fixed it so this will likely be the one and only SQL Leetcode unless I decide to go back and practice them specifically.
+
+Anyway, the problem is an easy and is a simple join and group with the added wrinkle of `null`s. Not much to say about this one that isn't very obvious for anyone who's written even a little SQL.
+
+```sql
+select
+  u.name,
+  coalesce(sum(r.distance), 0) as travelled_distance
+from
+  Users u left join Rides r on u.id = r.user_id
+group by u.id
+order by travelled_distance desc, u.name asc;
 ```

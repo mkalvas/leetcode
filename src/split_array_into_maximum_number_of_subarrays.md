@@ -15,7 +15,7 @@ A **subarray** is a contiguous part of an array.
 
 **Example 1:**
 
-```
+```txt
 Input: nums = [1,0,2,0,1,2]
 Output: 3
 Explanation: We can split the array into the following subarrays:
@@ -28,7 +28,7 @@ It can be shown that we cannot split the array into more than 3 subarrays with a
 
 **Example 2:**
 
-```
+```txt
 Input: nums = [5,7,1,3]
 Output: 1
 Explanation: We can split the array into one subarray: [5,7,1,3] with a score of 1, which is the minimum possible score that we can obtain.
@@ -37,14 +37,47 @@ It can be shown that we cannot split the array into more than 1 subarray with a 
 
 **Constraints:**
 
-- `1 <= nums.length <= 10<sup>5</sup>`
-- `0 <= nums[i] <= 10<sup>6</sup>`
+- `1 <= nums.length <= 10^5`
+- `0 <= nums[i] <= 10^6`
 
-## Explanation
+## Solution
 
-The maximum subarrays will always be `1` if we cannot make the score `0`. If we can get any subarray's value to be `0`, then we will be able to make the rest of the array `AND` to `0` since `0 & anything = 0`. So the maximum number of sub-arrays are the number of `0` score runs we can make so that their sum is still `0`. This transforms the problem into finding those zero runs. Another reason for this maximum sub-arrays limit of `1` when we can't get to zero is that it conceptually makes sense. If all of the bits in a position for every number is `1` after `&` on **all** numbers in the array, it means that there's no sub-combo that could result in that bit ever getting flipped to `0`. So there's necessarily that bit in the final answer, meaning the minimum possible score is the bits that are present in every single number.
+Let's consider an example to see how to begin thinking about this problem
 
-### First pass version before cleanup
+```txt
+nums = [1, 2, 3] = [00000001, 00000010, 00000011]
+
+score 0..2    = 00000001 & 00000010 & 00000011   = 0
+score 0..1, 2 = (00000001 & 00000010) + 00000011 = 3
+score 0, 1..2 = 00000001 + (00000010 & 00000011) = 3
+score 0, 1, 2 = 00000001 + 00000010 + 00000011   = 3
+```
+
+This has already shown us something interesting about how the bitwise and operation requires bits to be present in **every** number for the minimum score to not be `0`. For instance
+
+```txt
+nums = [1, 3, 5, 7] = [00000001, 00000011, 00000101, 00000111]
+
+score 0..3 = 00000001 & 00000011 & 00000101 & 00000111 = 1
+```
+
+No matter what arrangement of the numbers we make, we can't get rid of the "ones" bit (`00000001`). We _could_ find some combination of numbers that all the other digits `&` to `0`. Therefore the maximum subarrays for any array that cannot score `0` is guaranteed to be `1`. This is because any addition between numbers that are non-zero will include the un-zero-able bit more than once. So in our instance, if we split the array into 2, we'll have `2 * b00000001 = 2`. You can see how this extends to mean that the _minimum score_ is the exact number of digits that are un-zero-able and thus the bitwise and of the whole array.
+
+Now for arrays that _can_ score `0`, we need to find how to "make the most zero scores". In that first example I gave, there's a maximum of `1` because we need all the numbers to zero all the digits. Let's look at another example
+
+```txt
+nums = [1, 2, 1, 2, 1, 2]
+
+score 0..5 = 00000001 & 00000010 & 00000001 & 00000010 & 00000001 & 00000010 = 0
+score 0..1, 2..3, 4..5 =
+    (00000001 & 00000010) +
+    (00000001 & 00000010) +
+    (00000001 & 00000010) = 0
+```
+
+We can see that there's a way to "get to zero" 3 times. So how do we find the right number? Turns out there's no trick needed. We simply keep `&`-ing numbers until we get to zero and then count it and reset the running "sum".
+
+Here's my first pass version that's a little hard to follow. The `sum: Option<i32>` is `None` when we have no running "sum" and turns to `Some(sum)` when we have a run in progress. We start with `0` and then do `max(1, count)` so that we don't count a tail that didn't sum to `0`.
 
 ```rust
 pub fn max_subarrays(nums: Vec<i32>) -> i32 {
@@ -76,3 +109,25 @@ pub fn max_subarrays(nums: Vec<i32>) -> i32 {
     i32::max(1, count)
 }
 ```
+
+But we can clean this up considerably. We can use the `-1_i32` as a sentinel value for "empty" because it's all `1`s and therefore `n & -1_i32 = n`. This gets rid of all the `Option` bookkeeping and `match` statements.
+
+```rust
+pub fn max_subarrays(nums: Vec<i32>) -> i32 {
+    const ALL_ONES: i32 = -1;
+    let mut score = ALL_ONES;
+    let mut count = 0;
+
+    for n in nums {
+        score &= n;
+        if score == 0 {
+            count += 1;
+            score = ALL_ONES;
+        }
+    }
+
+    count.max(1)
+}
+```
+
+This version is really slick in my opinion. I'm happy how this problem turned out and it was fun to go through the bitwise examples with pen and paper to figure out how to solve it.

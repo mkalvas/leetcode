@@ -8,26 +8,27 @@ Return an array containing the indices of *all* **stable** mountains in **any** 
 
 **Example 1:**
 
-**Input:** height = [1,2,3,4,5], threshold = 2
-
-**Output:** [3,4]
-
-**Explanation:**
-
-* Mountain 3 is stable because `height[2] == 3` is greater than `threshold == 2`.
-* Mountain 4 is stable because `height[3] == 4` is greater than `threshold == 2`.
+```txt
+Input: height = [1,2,3,4,5], threshold = 2
+Output: [3,4]
+Explanation:
+- Mountain 3 is stable because height[2] == 3 is greater than threshold == 2.
+- Mountain 4 is stable because height[3] == 4 is greater than threshold == 2.
+```
 
 **Example 2:**
 
-**Input:** height = [10,1,10,1,10], threshold = 3
-
-**Output:** [1,3]
+```txt
+Input: height = [10,1,10,1,10], threshold = 3
+Output: [1,3]
+```
 
 **Example 3:**
 
-**Input:** height = [10,1,10,1,10], threshold = 10
-
-**Output:** []
+```txt
+Input: height = [10,1,10,1,10], threshold = 10
+Output: []
+```
 
 **Constraints:**
 
@@ -35,7 +36,9 @@ Return an array containing the indices of *all* **stable** mountains in **any** 
 * `1 <= height[i] <= 100`
 * `1 <= threshold <= 100`
 
-## Other solution versions
+## Solution
+
+This is as simple as it seems. Just figure out if the entry satisfies the predicate and add it to the list if it does.
 
 First pass, relatively naïve and non-"rusty"
 
@@ -68,4 +71,13 @@ Messing around with the differences between `filter().map()` and `filter_map()`.
     .collect()
 ```
 
-But importantly, all of these versions have the same performance characteristics. With the problem size constraints, we don't need `with_capacity` or other things here. For everything to be snappy.
+```rust
+pub fn stable_mountains(height: Vec<i32>, threshold: i32) -> Vec<i32> {
+    (1..height.len())
+        .filter(|&i| height[i - 1] > threshold)
+        .map(|i| i as i32) // guaranteed to be safe by problem construction
+        .collect()
+}
+```
+
+But importantly, all of these versions have the same performance characteristics. With the problem size constraints, we don't need `with_capacity` or other things here for everything to be snappy anyway.

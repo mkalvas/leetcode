@@ -26,3 +26,51 @@ Output: "y"
 - `0 <= s.length <= 1000`
 - `t.length == s.length + 1`
 - `s` and `t` consist of lowercase English letters.
+
+## Solution
+
+This one is really straightforward. We just create a frequency count of the characters in the string, then decrement them until we find the one that has an extra count.
+
+```rust
+pub fn find_the_difference(s: String, t: String) -> char {
+    let mut counts: HashMap<char, u16> = HashMap::with_capacity(26);
+    for c in s.chars() {
+        *counts.entry(c).or_default() += 1;
+    }
+
+    for c in t.chars() {
+        match counts.get_mut(&c) {
+            Some(count) if *count > 0 => *count -= 1,
+            _ => return c,
+        }
+    }
+
+    unreachable!("problem guarantees one char difference");
+}
+```
+
+There is however a cool, different solution that uses `xor` on the character bytes.
+
+```rust
+pub fn find_the_difference(s: String, t: String) -> char {
+    char::from(s.bytes().chain(t.bytes()).fold(0, |acc, c| acc ^ c))
+}
+```
+
+This works by converting the strings to bytes, concatenating them together, splitting on each byte, and then folding over that array of bytes, `xor`-ing the next byte in the fold with the accumulator. This "toggles" bytes on and off as they come across odd and even counts. The one character extra is guaranteed to have an odd count and thus be the only bytes left "on" at the end. For example,
+
+```txt
+"a" = 01100001
+"b" = 01100010
+
+s   = aa    = [01100001, 01100001]
+t   = aba   = [01100001, 01100010, 01100001]
+s:t = aaaba = [01100001, 01100001, 01100001, 01100010, 01100001]
+
+acc = 00000000
+acc = 00000000 ^ 01100001 = 01100001
+acc = 01100001 ^ 01100001 = 00000000
+acc = 00000000 ^ 01100001 = 01100001
+acc = 01100001 ^ 01100010 = 00000011
+acc = 00000011 ^ 01100001 = 01100010 = 'b'
+```
