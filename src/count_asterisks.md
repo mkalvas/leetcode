@@ -62,7 +62,7 @@ Rust's [match guards](https://doc.rust-lang.org/reference/expressions/match-expr
 
 We could use `bytes()` instead of `chars()` and match on `b'|'` and `b'*'` because we're guaranteed valid ascii strings by the problem statement, but that's an unnecessary optimization for this small problem.
 
-Another approach entirely would be to split the string into sections of `'|'` and `skip_by(2)`. This is slightly less performant but may read better for some people. I think the even number skipping is a bit opaque, so I'll just leave my solution as is.
+Another approach entirely would be to split the string into sections of `'|'` and `step_by(2)`. This is slightly less performant but may read better for some people. I think the even number skipping is a bit opaque, so I'll just leave my solution as is.
 
 ```rust
 pub fn count_asterisks(s: String) -> i32 {

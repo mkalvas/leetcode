@@ -12,4 +12,5 @@ pub mod split_array_into_maximum_number_of_subarrays;
 pub mod split_strings_by_separator;
 pub mod substring_with_concatenation_of_all_words;
 pub mod sum_of_floored_pairs;
+pub mod time_needed_to_inform_all_employees;
 pub mod two_sum;
