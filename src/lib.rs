@@ -1,3 +1,4 @@
+pub mod count_asterisks;
 pub mod find_closest_number_to_zero;
 pub mod find_indices_of_stable_mountains;
 pub mod find_the_difference;

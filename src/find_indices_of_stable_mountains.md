@@ -32,9 +32,9 @@ Output: []
 
 **Constraints:**
 
-* `2 <= n == height.length <= 100`
-* `1 <= height[i] <= 100`
-* `1 <= threshold <= 100`
+- `2 <= n == height.length <= 100`
+- `1 <= height[i] <= 100`
+- `1 <= threshold <= 100`
 
 ## Solution
 
