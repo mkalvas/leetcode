@@ -57,7 +57,7 @@ pub fn sum_of_floored_pairs(nums: Vec<i32>) -> i32 {
     let mut freqs = HashMap::new();
     let mut max = 1;
     for n in &nums {
-        freqs.entry(*n).and_modify(|f| *f += 1).or_insert(1);
+        *freqs.entry(n).or_insert(0) += 1;
         if n > &max {
             max = *n;
         }
@@ -81,7 +81,9 @@ pub fn sum_of_floored_pairs(nums: Vec<i32>) -> i32 {
 }
 ```
 
-The next thing we need to do is to take out the inner hot loop. If we ask ourselves, is there a faster way to look up the sum of an array from `i..j`, we recall the pattern we're searching for — a prefix sum array.
+And we were right that it was still too slow. The next thing we need to do is to take out the inner hot loop.
+
+If we ask ourselves, is there a faster way to look up the sum of an array from `i..j`, we recall (or perhaps research and find) the pattern we're searching for — a prefix sum array.
 
 We can build that for `1..maxNum` with
 
@@ -101,13 +103,13 @@ sum += block * (prefixes[right as usize] - prefixes[(left - 1) as usize]);
 and putting it all together, we get our final answer.
 
 ```rust
-pub fn sum_of_floored_pairs_hashmap(nums: Vec<i32>) -> i32 {
+pub fn sum_of_floored_pairs(nums: Vec<i32>) -> i32 {
     let nums: Vec<i64> = nums.iter().map(|n| *n as i64).collect();
 
     let mut freqs = HashMap::new();
     let mut max = 1;
     for n in &nums {
-        freqs.entry(n).and_modify(|f| *f += 1).or_insert(1);
+        *freqs.entry(n).or_insert(0) += 1;
         if n > &max {
             max = *n;
         }
@@ -133,12 +135,52 @@ pub fn sum_of_floored_pairs_hashmap(nums: Vec<i32>) -> i32 {
 }
 ```
 
-This version landed us in the middle of the performance curve on submissions so I went digging for improvements.
+This version was a success but landed us in the middle of the performance curve on submissions, so I went digging for improvements.
 
 - The `nums` into `i64` is wasteful and I just wanted that to not have to do as many casts as I was working on the problem. Removed that.
 - The `HashMap` is unnecessary. We can just use an array for frequencies with the index as the "hash key".
-- We have two data structures (`freqs` and `prefixes`) when we can compute the prefix sums in place after computing the frequencies. Importantly, we can still recover the number of `copies` for a number by `prefixes[i] - prefixes[i - 1]` for later.
-- At the cost of a little readability, we can get some cache efficiencies by checking sequentially over all `1..=max` and skipping out if there are no copies. This _checks_ more iterations but the sequential cache efficiencies are worth it and the early `if copy == 0` bailout is highly predictable to the CPU cache.
-- We can also rewrite our `left` and `right` `block` bounds iterations to use addition instead of multipllication which is a small but worthwhile win at our current depths of optimization.
+- We have two data structures (`freqs` and `prefixes`) when we can compute the prefix sums in place _after_ computing the frequencies. Importantly, we can still recover the number of `copies` (frequency) for a number by `prefixes[i] - prefixes[i - 1]` (which we'll need later).
+- At the cost of a little readability, we can get some cache efficiencies by checking sequentially over all `1..=max` and skipping out if there are no copies. This _checks_ more iterations but the sequential cache efficiencies are worth it and the early `if copy == 0` bailout is highly predictable to the CPU.
+- We can also rewrite our `left` and `right` `block` bounds iterations to use addition instead of multiplication which is a small but worthwhile win at our current depths of optimization.
 
-The best solution I could come up with without going crazy on things is in the code file.
+Here's I could come up with without going crazy on things.
+
+```rust
+pub fn sum_of_floored_pairs(nums: Vec<i32>) -> i32 {
+    let max = nums.iter().copied().max().unwrap_or(0) as usize;
+
+    let mut prefixes = vec![0_i64; max + 1];
+    // get frequencies first
+    for n in &nums {
+        prefixes[*n as usize] += 1;
+    }
+
+    // convert frequencies into prefix sum
+    for value in 1..=max {
+        prefixes[value] += prefixes[value - 1];
+    }
+
+    let mut sum: i64 = 0;
+    for divisor in 1..=max {
+        // recover frequency from prefix sum
+        let copies = prefixes[divisor] - prefixes[divisor - 1];
+        if copies == 0 {
+            continue;
+        }
+
+        let mut block: i64 = 1;
+        let mut sum_for_n: i64 = 0;
+        let mut left = divisor;
+        while left <= max {
+            let right = (left + divisor - 1).min(max);
+            sum_for_n += block * (prefixes[right] - prefixes[left - 1]);
+            block += 1;
+            left += divisor;
+        }
+
+        sum += sum_for_n * copies;
+    }
+
+    (sum % MODULO) as i32
+}
+```

@@ -56,6 +56,23 @@ Explanation:
 
 ## Solution
 
+I went for the notebook and pen for this one because it seemed immediately obvious to me that there would be a mathematical formula for the correct energy requirement. Given each lightbulb can illuminate itself and its two neighbors, it felt like we were looking for something to do with integer division of 3. So I picked the length of 7 to find a pattern since it would likely cover 2+ "cycles" of the pattern.
+
+```txt
+0 0 0 0 0 0 0   brightness = 0  min_energy = 0  <- disallowed by problem statement
+1 0 0 0 0 0 0   brightness = 1  min_energy = 1
+1 0 0 0 0 0 0   brightness = 2  min_energy = 1
+0 1 0 0 0 0 0   brightness = 3  min_energy = 1
+0 1 0 0 0 0 1   brightness = 4  min_energy = 2
+0 1 0 0 0 0 1   brightness = 5  min_energy = 2
+0 1 0 0 1 0 0   brightness = 6  min_energy = 2
+0 1 0 0 1 0 1   brightness = 7  min_energy = 3
+```
+
+I played around with other arrangements just a bit (e.g., the more precise `1 0 0 1 0 0 1` for `brightness = 7`) before I was convinced that we simply needed `(brightness - 1) / 3 + 1` (note the integer division or use a `floor` if your language doesn't have that) for the minimum energy.
+
+The tricky part of this problem was going to be the interval flattening though. So I just started with the naïve approach.
+
 ```rust
 pub fn min_energy(n: i32, brightness: i32, intervals: Vec<Vec<i32>>) -> i64 {
     let mut times = HashSet::new();
@@ -70,16 +87,41 @@ pub fn min_energy(n: i32, brightness: i32, intervals: Vec<Vec<i32>>) -> i64 {
 }
 ```
 
-Correct but too slow for adversarial intervals (note that `brightness == 0` is incorrect but disallowed by the problem statement). So we need to do the intervals in a smarter way. Since all we need is the number of integers in the merged intervals we can just count them directly. This is a similar approach as something called a last merged interval. We need to pre-sort the array by the beginning of each interval. This guarantees that the starts of each interval will always be non-decreasing, and therefore we can look at the end of the previously merged interval to see if we need to merge this one too, or account for a gap.
+This is correct and very easy to understand but too slow for the submission, especially for adversarial intervals. How can we do the intervals in a smarter way?
+
+Since all we need is the number of integers in the merged intervals we can just count them directly. This is a similar approach as something called a "last merged interval". We need to pre-sort the array by the _beginning_ of each interval. This guarantees that the starts of each interval will always be non-decreasing, and therefore we can look at the _end_ of the previously merged interval to see if we need to merge this one too, or account for a gap. For instance,
+
+```txt
+[[1, 3], [2, 4]]
+  start at 1,
+  set end to 3,
+  compare 2 < 3 and 3 < 4,
+  set new end to 4
+
+[[1, 6], [2, 4]]
+  start at 1,
+  set end to 6,
+  compare 2 < 6 but 6 > 4,
+  don't set new end
+
+[[1, 3], [5, 7]]
+  start at 1,
+  set end to 3,
+  compare 3 < 5
+  start new interval with [5, 7]
+```
+
+This gives us a straightforward way to count the interval once complete with `end - start + 1` since it's inclusive on both ends. Then we simply multiply the number of on lights from the brightness formula with the number of on times to get the total energy.
 
 ```rust
-pub fn min_energy(_n: i32, brightness: i32, mut intervals: Vec<Vec<i32>>) -> i64 {
-    intervals.sort_unstable_by_key(|interval| interval[0]);
+pub fn min_energy(_n: i32, brightness: i32, intervals: Vec<Vec<i32>>) -> i64 {
+    let mut intervals: Vec<(i32, i32)> = intervals.iter().map(|iv| (iv[0], iv[1])).collect();
+    intervals.sort_unstable_by_key(|i| i.0);
 
-    let mut end_time = intervals[0][1];
-    let mut on_times = i64::from(end_time - intervals[0][0] + 1);
-    for interval in &intervals[1..] {
-        let (start, end) = (interval[0], interval[1]);
+    let (first_start, first_end) = intervals[0];
+    let mut end_time = first_end;
+    let mut on_times = i64::from(first_end - first_start + 1);
+    for &(start, end) in &intervals[1..] {
         if start <= end_time && end_time < end {
             on_times += i64::from(end - end_time);
             end_time = end;
@@ -94,9 +136,7 @@ pub fn min_energy(_n: i32, brightness: i32, mut intervals: Vec<Vec<i32>>) -> i64
 }
 ```
 
-There are a few other tweaks we can do to make it slightly faster but all within the same ballpark (see the final version in the code file).
-
-We _can_ go further though. There's a branchless version of the core loop that looks like this
+This is the final version I stuck with since it's fast and understandable. We _can_ go further though. There's a branchless version of the core loop that looks like this
 
 ```rust
 for &(start, end) in &intervals[1..] {
@@ -106,6 +146,6 @@ for &(start, end) in &intervals[1..] {
 }
 ```
 
-Which the astute among you will realize still has branching in it since `max` desugars to `if a < b { b } else { a }` under the hood. The reason that this _becomes_ branchless is that the compiler can take that specific form of if statement and turn it into a `csel` instruction which is a **c**onditional-**sel**ect instruction. So this turns into a data flow, not a true control flow branch (which as it turns out are very different things to CPUs) meaning it can't trip on branch mispredictions (the thing you're really talking about when you talk about being "branchless").
+Which the astute among you will realize still has branching in it since `max` de-sugars to `if a < b { b } else { a }` under the hood. The reason that this _becomes_ branchless is that the compiler can take that specific form of `if` statement and turn it into a `csel` instruction which is a **c**onditional-**sel**ect instruction. So this turns into _data_ flow, not a true _control_ flow branch (which are very different things to CPUs) meaning it can't trip on branch mis-predictions (the thing you're really talking about when you talk about being "branchless").
 
-But unfortunately this leetcode problem is actually not very well constructed. First of all we don't even need the `n` parameter in the function signature. Second, dropping the owned `intervals` `Vec` is the dominating performance bottleneck of the problem, followed distantly by the sort that's required for the intended solution. There aren't really ways around them. You could `mem::forget` the `Vec` but that's leaking memory and banking on the OS to clean up your intentional litter — not something you typically want to do. There's also an insane radix sort trick you can do (that I would never be able to come up with on my own) that I won't bother to explain here.
+But unfortunately this Leetcode problem is actually not very well constructed. First of all we don't even need the `n` parameter in the function signature. Second, dropping the owned `intervals` `Vec` is the dominating performance bottleneck of the problem, followed distantly by the sort that's required for the intended solution. There aren't really ways around them. You could `mem::forget` the `Vec` but that's leaking memory and banking on the OS to clean up your intentional litter — not something you typically want to do. There's also an insane radix sort trick you can do (that I would never be able to come up with on my own) that I won't bother to explain here. So it's unfortunate but the problem as stated and presented, is really just bounded by the input size, the memory allocator, and a sort routine, not the actual meat of the problem.
