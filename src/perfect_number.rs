@@ -30,21 +30,21 @@ mod test {
 
     #[test]
     fn base_test_1() {
-        assert_eq!(check_perfect_number(28), true);
+        assert!(check_perfect_number(28));
     }
 
     #[test]
     fn base_test_2() {
-        assert_eq!(check_perfect_number(7), false);
+        assert!(!check_perfect_number(7));
     }
 
     #[test]
     fn large_number() {
-        assert_eq!(check_perfect_number(99999999), false);
+        assert!(!check_perfect_number(99999999));
     }
 
     #[test]
     fn one() {
-        assert_eq!(check_perfect_number(1), false);
+        assert!(!check_perfect_number(1));
     }
 }
