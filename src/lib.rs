@@ -3,6 +3,7 @@ pub mod find_closest_number_to_zero;
 pub mod find_indices_of_stable_mountains;
 pub mod find_the_difference;
 pub mod fix_playlist_window;
+pub mod lexicographically_smallest_string_after_a_swap;
 pub mod maximum_number_of_words_you_can_type;
 pub mod minimum_energy_to_maintain_brightness;
 pub mod number_of_perfect_pairs;
