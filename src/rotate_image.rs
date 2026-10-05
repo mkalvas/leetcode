@@ -3,9 +3,7 @@
 pub fn rotate(matrix: &mut Vec<Vec<i32>>) {
     for i in 0..matrix.len() {
         for j in (i + 1)..matrix.len() {
-            let [row_i, row_j] = matrix
-                .get_disjoint_mut([i, j])
-                .expect("index in range by loop construction");
+            let [row_i, row_j] = matrix.get_disjoint_mut([i, j]).expect("i < j < len");
             std::mem::swap(&mut row_i[j], &mut row_j[i]);
         }
     }
