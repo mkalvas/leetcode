@@ -9,6 +9,7 @@ pub mod minimum_energy_to_maintain_brightness;
 pub mod number_of_perfect_pairs;
 pub mod perfect_number;
 pub mod reverse_prefix_of_word;
+pub mod rotate_image;
 pub mod split_array_into_maximum_number_of_subarrays;
 pub mod split_strings_by_separator;
 pub mod substring_with_concatenation_of_all_words;
