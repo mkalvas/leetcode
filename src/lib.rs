@@ -8,6 +8,7 @@ pub mod maximum_number_of_words_you_can_type;
 pub mod minimum_energy_to_maintain_brightness;
 pub mod number_of_perfect_pairs;
 pub mod perfect_number;
+pub mod prime_number_of_set_bits_in_binary_representation;
 pub mod reverse_prefix_of_word;
 pub mod rotate_image;
 pub mod split_array_into_maximum_number_of_subarrays;
