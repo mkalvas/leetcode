@@ -117,9 +117,12 @@ Say `z` is the max of `[x, y, z]`. This means `fill_cups([x, y, z]) = z` until `
   <mtable columnalign="left" rowspacing="1em">
     <mtr>
       <mtd>
-        <mtext>For a given </mtext>
+        <mtext>For a given</mtext>
+        <mspace width="0.3em"/>
         <mo>[</mo><mi>x</mi><mo>, </mo><mi>y</mi><mo>, </mo><mi>z</mi><mo>]</mo>
-        <mtext> sorted such that </mtext>
+        <mspace width="0.3em"/>
+        <mtext>sorted such that</mtext>
+        <mspace width="0.3em"/>
         <mi>x</mi><mo>≤</mo><mi>y</mi><mo>≤</mo><mi>z</mi><mo>:</mo>
       </mtd>
     </mtr>
@@ -133,7 +136,8 @@ Say `z` is the max of `[x, y, z]`. This means `fill_cups([x, y, z]) = z` until `
             <mtr>
               <mtd><mi>z</mi></mtd>
               <mtd>
-                <mtext>if </mtext>
+                <mtext>if</mtext>
+                <mspace width="0.3em"/>
                 <mi>z</mi><mo>≥</mo><mi>x</mi><mo>+</mo><mi>y</mi>
               </mtd>
             </mtr>
@@ -149,7 +153,8 @@ Say `z` is the max of `[x, y, z]`. This means `fill_cups([x, y, z]) = z` until `
                 </mrow>
               </mtd>
               <mtd>
-                <mtext>if </mtext>
+                <mtext>if</mtext>
+                <mspace width="0.3em"/>
                 <mi>z</mi><mo>&lt;</mo><mi>x</mi><mo>+</mo><mi>y</mi>
               </mtd>
             </mtr>
