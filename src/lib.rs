@@ -5,6 +5,7 @@ pub mod find_the_difference;
 pub mod fix_playlist_window;
 pub mod intersection_of_two_arrays_ii;
 pub mod lexicographically_smallest_string_after_a_swap;
+pub mod make_three_strings_equal;
 pub mod maximum_number_of_words_you_can_type;
 pub mod minimum_amount_of_time_to_fill_cups;
 pub mod minimum_energy_to_maintain_brightness;
